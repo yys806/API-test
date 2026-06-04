@@ -163,7 +163,7 @@ export function App() {
   return (
     <main className="app-shell">
       <section className="workspace">
-        <form className="config-panel" onSubmit={(event) => event.preventDefault()}>
+        <form className="config-panel" autoComplete="off" onSubmit={(event) => event.preventDefault()}>
           <div className="brand">
             <span className="brand-mark">
               <RadioTower size={22} />
@@ -213,7 +213,7 @@ export function App() {
               <input
                 id="api-key"
                 name="apiKey"
-                autoComplete="current-password"
+                autoComplete="new-password"
                 value={apiKey}
                 onChange={(event) => setApiKey(event.target.value)}
                 placeholder="sk-..."
