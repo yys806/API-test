@@ -17,7 +17,8 @@ describe('provider presets', () => {
     expect(getProviderById('deepseek')).toMatchObject({
       baseUrl: 'https://api.deepseek.com/v1',
       endpointType: 'openai-compatible',
-      defaultModel: 'deepseek-chat'
+      defaultModel: 'deepseek-v4-flash',
+      models: ['deepseek-v4-flash', 'deepseek-v4-pro']
     });
     expect(getProviderById('openrouter')).toMatchObject({
       baseUrl: 'https://openrouter.ai/api/v1',

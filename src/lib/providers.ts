@@ -5,6 +5,7 @@ export type ProviderPreset = {
   name: string;
   baseUrl: string;
   defaultModel: string;
+  models?: string[];
   endpointType: EndpointType;
   accent: string;
   note: string;
@@ -15,7 +16,8 @@ export const PROVIDERS: ProviderPreset[] = [
     id: 'deepseek',
     name: 'DeepSeek',
     baseUrl: 'https://api.deepseek.com/v1',
-    defaultModel: 'deepseek-chat',
+    defaultModel: 'deepseek-v4-flash',
+    models: ['deepseek-v4-flash', 'deepseek-v4-pro'],
     endpointType: 'openai-compatible',
     accent: '#2f6df6',
     note: 'OpenAI-compatible chat completions'

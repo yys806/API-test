@@ -230,7 +230,21 @@ export function App() {
               <Sparkles size={16} />
               Model
             </span>
-            <input id="model" name="model" value={model} onChange={(event) => setModel(event.target.value)} placeholder="model-name" />
+            <input
+              id="model"
+              name="model"
+              value={model}
+              onChange={(event) => setModel(event.target.value)}
+              placeholder="model-name"
+              list={activeProvider.models?.length ? 'model-options' : undefined}
+            />
+            {activeProvider.models?.length ? (
+              <datalist id="model-options">
+                {activeProvider.models.map((modelName) => (
+                  <option key={modelName} value={modelName} />
+                ))}
+              </datalist>
+            ) : null}
           </label>
 
           <label className="field">
