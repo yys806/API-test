@@ -213,6 +213,7 @@ export function App() {
               <input
                 id="api-key"
                 name="apiKey"
+                autoComplete="current-password"
                 value={apiKey}
                 onChange={(event) => setApiKey(event.target.value)}
                 placeholder="sk-..."
