@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { extractRegionalPricing, rankRegionalPrices } from './pricing';
+import { buildPricingPayload, extractRegionalPricing, rankRegionalPrices } from './pricing';
 
 const sampleHtml = `
   <script>
@@ -65,5 +65,15 @@ describe('regional pricing', () => {
       exchangeSource: 'live-usd'
     });
     expect(ranked[1].cny).toBe(144);
+  });
+
+  it('builds ranked regions for every plan so UI plan switching is local', () => {
+    const products = extractRegionalPricing(sampleHtml);
+    const payload = buildPricingPayload(products, undefined, 'claude-pro-month');
+
+    expect(payload.selectedPlanId).toBe('claude-pro-month');
+    expect(payload.regions.map((row) => row.country)).toEqual(['尼日利亚', '美国']);
+    expect(payload.rankingsByPlan['chatgpt-plus-month'].map((row) => row.country)).toEqual(['土耳其', '美国']);
+    expect(payload.rankingsByPlan['claude-pro-month'].map((row) => row.country)).toEqual(['尼日利亚', '美国']);
   });
 });

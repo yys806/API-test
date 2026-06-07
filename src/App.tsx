@@ -20,6 +20,7 @@ import {
   RefreshCw,
   Send,
   Server,
+  Upload,
   ShieldCheck,
   ShoppingBag,
   Sparkles,
@@ -29,7 +30,7 @@ import {
 } from 'lucide-react';
 import { getProviderById, PROVIDERS, type EndpointType, type ProviderPreset } from './lib/providers';
 import type { ChatMessage } from './lib/apiRequest';
-import { convertSessionInput, type OutputFormat } from './lib/sessionConverter';
+import { buildDownloadFileName, convertSessionInput, EXAMPLE_SESSION, type OutputFormat } from './lib/sessionConverter';
 
 type UiMessage = ChatMessage & {
   id: string;
@@ -58,6 +59,7 @@ type PriceResponse = {
   plans: Array<{ id: string; productName: string; name: string; period: string; updatedAt: string; source: string; sourceLabel: string; count: number }>;
   selectedPlanId: string | null;
   regions: Array<{ country: string; flag?: string; currency: string; localPrice: string; usd?: number; cny: number; displayPrice: string; exchangeSource: string }>;
+  rankingsByPlan?: Record<string, Array<{ country: string; flag?: string; currency: string; localPrice: string; usd?: number; cny: number; displayPrice: string; exchangeSource: string }>>;
   errors?: string[];
 };
 
@@ -120,8 +122,8 @@ const modules: Array<{ id: ModuleId; label: string; eyebrow: string; icon: typeo
 
 const shenLinks = [
   { title: 'Shen AI 中转站', url: 'https://skill-chat.cn', note: '主站入口' },
-  { title: 'Shen AI 主小铺', url: 'https://pay.ldxp.cn/shop/S5I572HE', note: '链动小铺' },
-  { title: 'Shen AI 副小铺', url: 'https://catfk.com/shop/I8IXPSSZ', note: '云猫寄售公开店铺入口' },
+  { title: 'Shen AI 主小铺', url: 'https://catfk.com/shop/I8IXPSSZ', note: '云猫寄售公开店铺入口' },
+  { title: 'Shen AI 副小铺', url: 'https://pay.ldxp.cn/shop/S5I572HE', note: '链动小铺' },
   { title: 'AI 生图站', url: 'https://shen-image.cc.cd/', note: '图片生成服务' }
 ];
 
@@ -237,6 +239,7 @@ export function App() {
   const [sessionFormat, setSessionFormat] = useState<OutputFormat>('sub2api');
   const [pricingPlan, setPricingPlan] = useState('');
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const activeProvider = useMemo(() => getProviderById(providerId), [providerId]);
   const lastAssistant = [...messages].reverse().find((message) => message.role === 'assistant');
@@ -246,13 +249,13 @@ export function App() {
     .filter((message) => message.role === 'user' || message.role === 'assistant')
     .map(({ role, content }) => ({ role, content }));
   const conversion = useMemo(() => convertSessionInput(sessionInput, sessionFormat), [sessionInput, sessionFormat]);
-  const pricing = useFunctionResource<PriceResponse>(
-    `/.netlify/functions/pricing${pricingPlan ? `?plan=${encodeURIComponent(pricingPlan)}` : ''}`,
-    activeModule === 'pricing'
-  );
+  const pricing = useFunctionResource<PriceResponse>('/.netlify/functions/pricing', activeModule === 'pricing');
   const shops = useFunctionResource<ShopResponse>('/.netlify/functions/shop-monitor', activeModule === 'shops');
   const officialStatus = useFunctionResource<StatusResponse>('/.netlify/functions/status', activeModule === 'status');
   const bilibili = useFunctionResource<BilibiliResponse>('/.netlify/functions/bilibili-monitor', activeModule === 'bilibili');
+  const pricingPlanExists = Boolean(pricing.data?.plans.some((plan) => plan.id === pricingPlan));
+  const selectedPricingPlanId = pricingPlanExists ? pricingPlan : pricing.data?.selectedPlanId || pricing.data?.plans[0]?.id || '';
+  const selectedRegions = selectedPricingPlanId ? pricing.data?.rankingsByPlan?.[selectedPricingPlanId] ?? pricing.data?.regions ?? [] : pricing.data?.regions ?? [];
 
   function applyProvider(provider: ProviderPreset) {
     setProviderId(provider.id);
@@ -339,6 +342,35 @@ export function App() {
     await navigator.clipboard.writeText(conversion.output);
   }
 
+  function downloadConversion() {
+    if (!conversion.output) return;
+    const blob = new Blob([conversion.output], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = buildDownloadFileName(conversion.accounts, sessionFormat);
+    document.body.append(anchor);
+    anchor.click();
+    anchor.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  async function readSessionFiles(files: FileList | null) {
+    if (!files?.length) return;
+    const jsonFiles = Array.from(files).filter((file) => file.name.toLowerCase().endsWith('.json'));
+    const contents = await Promise.all(
+      jsonFiles.map(async (file) => {
+        const text = await file.text();
+        try {
+          return JSON.stringify(JSON.parse(text), null, 2);
+        } catch {
+          return text;
+        }
+      })
+    );
+    setSessionInput(contents.length === 1 ? contents[0] : `[${contents.join(',\n')}]`);
+  }
+
   return (
     <main className="dashboard-shell">
       <aside className="side-nav">
@@ -347,8 +379,8 @@ export function App() {
             <RadioTower size={22} />
           </span>
           <div>
-            <p>SHEN AI OPS</p>
-            <h1>资源监控台</h1>
+            <p>SHEN AI HUB</p>
+            <h1>Shen AI集合站</h1>
           </div>
         </div>
         <nav aria-label="模块导航">
@@ -553,13 +585,13 @@ export function App() {
             </div>
             <div className="format-tabs">
               {pricing.data?.plans.map((plan) => (
-                <button className={(pricing.data?.selectedPlanId ?? pricingPlan) === plan.id ? 'active' : ''} type="button" key={plan.id} onClick={() => setPricingPlan(plan.id)}>
+                <button className={selectedPricingPlanId === plan.id ? 'active' : ''} type="button" key={plan.id} onClick={() => setPricingPlan(plan.id)}>
                   {plan.name}
                 </button>
               ))}
             </div>
             <div className="price-grid">
-              {pricing.data?.regions.map((row, index) => (
+              {selectedRegions.map((row, index) => (
                 <article className="rank-card" key={`${row.country}-${row.localPrice}`}>
                   <span>#{index + 1}</span>
                   <strong>{row.flag ? `${row.flag} ` : ''}{row.country}</strong>
@@ -571,7 +603,7 @@ export function App() {
                 </article>
               ))}
             </div>
-            {!pricing.loading && pricing.data && pricing.data.regions.length === 0 ? <p className="notice bad">暂时没有解析到地区价格。</p> : null}
+            {!pricing.loading && pricing.data && selectedRegions.length === 0 ? <p className="notice bad">暂时没有解析到地区价格。</p> : null}
             <div className="link-grid">
               {pricing.data?.sources.map((source) => <ExternalLinkCard key={source.url} title={source.title} url={source.url} note={source.provider} />)}
             </div>
@@ -604,8 +636,18 @@ export function App() {
                 </a>
               ))}
             </div>
-            {!shops.loading && shops.data && shops.data.products.length === 0 ? <p className="notice">当前没有拿到公开货源列表。可提供商家中心登录态或官方 API 后，我可以把这里改成真实平台级搜索。</p> : null}
-            {shops.data?.errors?.length ? <pre className="error-block">{shops.data.errors.join('\n')}</pre> : null}
+            {!shops.loading && shops.data && shops.data.products.length === 0 ? (
+              <div className="info-stack">
+                <p className="notice">当前没有拿到公开货源列表。要把这里做成“实时查看成品号、Plus 代充、Team 号”，需要提供其中一种：商家中心登录态 Cookie、官方/后台 API 文档，或可在 Netlify 环境变量里配置的后台接口凭据。</p>
+                <p className="notice">已确认的公开店铺接口只能查具体店铺商品，不适合当作平台级货源搜索；我也不会把你自己的店铺商品冒充成低价渠道结果。</p>
+              </div>
+            ) : null}
+            {shops.data?.errors?.length ? (
+              <details className="diagnostic-details">
+                <summary>诊断信息</summary>
+                <pre className="error-block">{shops.data.errors.join('\n')}</pre>
+              </details>
+            ) : null}
             {shops.error ? <p className="notice bad">{shops.error}</p> : null}
           </section>
         ) : null}
@@ -631,7 +673,12 @@ export function App() {
               ))}
             </div>
             {!bilibili.loading && bilibili.data && bilibili.data.items.length === 0 ? <p className="notice">近 5 天暂未发现播放量破万的匹配视频。</p> : null}
-            {bilibili.data?.errors?.length ? <pre className="error-block">{bilibili.data.errors.join('\n')}</pre> : null}
+            {bilibili.data?.errors?.length && bilibili.data.items.length === 0 ? (
+              <details className="diagnostic-details" open>
+                <summary>诊断信息</summary>
+                <pre className="error-block">{bilibili.data.errors.join('\n')}</pre>
+              </details>
+            ) : null}
             {bilibili.error ? <p className="notice bad">{bilibili.error}</p> : null}
           </section>
         ) : null}
@@ -678,16 +725,41 @@ export function App() {
                 </button>
               ))}
             </div>
+            <div className="converter-actions">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="application/json,.json"
+                multiple
+                hidden
+                onChange={(event) => {
+                  void readSessionFiles(event.target.files);
+                  event.target.value = '';
+                }}
+              />
+              <button className="ghost-button" type="button" onClick={() => fileInputRef.current?.click()}>
+                <Upload size={16} />
+                选择 JSON 文件
+              </button>
+              <button className="ghost-button" type="button" onClick={() => setSessionInput(JSON.stringify(EXAMPLE_SESSION, null, 2))}>
+                <Clipboard size={16} />
+                加载示例
+              </button>
+              <button className="ghost-button" type="button" onClick={downloadConversion} disabled={!conversion.output}>
+                <ArrowUpRight size={16} />
+                下载 JSON
+              </button>
+            </div>
             <div className="converter-grid">
               <textarea
                 value={sessionInput}
                 onChange={(event) => setSessionInput(event.target.value)}
-                placeholder='粘贴 ChatGPT session JSON、AT-only JSON，或每行一个 JSON。示例：{"type":"codex","access_token":"...","refresh_token":"..."}'
+                placeholder='粘贴 ChatGPT session JSON、AT-only JSON，或导入一个/多个 JSON 文件。示例：{"type":"codex","access_token":"...","refresh_token":"..."}'
               />
               <textarea value={conversion.output} readOnly placeholder="转换后会显示 JSON。" />
             </div>
             <div className="toolbar">
-              <span>{conversion.accounts.length} 个账号，跳过 {conversion.skipped} 项</span>
+              <span>{conversion.accounts.length} 个账号，跳过 {conversion.skipped} 项，当前格式 {sessionFormat}</span>
               <button className="ghost-button" type="button" onClick={copyConversion}>
                 <Copy size={16} />
                 复制输出
@@ -697,6 +769,44 @@ export function App() {
                 清空
               </button>
             </div>
+            <p className="notice">CPA / Cockpit / Codex / AxonHub / Codex-Manager 的 401 测试通常只能验证 access token 是否有效，不代表 Plus、Pro、Team 权益一定可用。</p>
+            <div className="account-table-wrap">
+              <table className="account-table">
+                <thead>
+                  <tr>
+                    <th>名称</th>
+                    <th>Email</th>
+                    <th>过期时间</th>
+                    <th>来源</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {conversion.accounts.length ? (
+                    conversion.accounts.map((account, index) => (
+                      <tr key={`${account.sourceName}-${account.sourcePath}-${index}`}>
+                        <td>{account.name || '-'}</td>
+                        <td>{account.email || '-'}</td>
+                        <td>{account.expiresAt ? formatTime(account.expiresAt) : '-'}</td>
+                        <td>{account.sourceName || 'pasted-json'}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={4}>暂无可转换账号。</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+            {conversion.issues.length ? (
+              <div className="issue-list">
+                {conversion.issues.map((issue, index) => (
+                  <div key={`${issue.sourceName}-${issue.path}-${index}`}>
+                    {issue.sourceName} {issue.path}: {issue.reason}
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </section>
         ) : null}
 

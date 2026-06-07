@@ -117,7 +117,7 @@ export const handler: Handler = async () => {
           : '两个平台的游客端暂未暴露可用的平台级货源搜索接口；如需直接搜索别的店铺和商品，需要提供商家中心登录态、开放 API 或后台接口文档。',
       keywords: KEYWORDS,
       products,
-      errors: errors.slice(0, 12)
+      errors: products.length > 0 ? errors.slice(0, 4) : []
     })
   };
 };

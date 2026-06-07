@@ -702,6 +702,17 @@ a {
   background: #2563eb;
 }
 
+.converter-actions,
+.info-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.info-stack {
+  display: grid;
+}
+
 .converter-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -714,6 +725,62 @@ a {
   resize: vertical;
   font-family: "Cascadia Code", Consolas, monospace;
   line-height: 1.6;
+}
+
+.account-table-wrap {
+  overflow: auto;
+  border: 1px solid rgba(29, 39, 52, 0.1);
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.account-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 680px;
+}
+
+.account-table th,
+.account-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(29, 39, 52, 0.08);
+  text-align: left;
+  vertical-align: top;
+}
+
+.account-table th {
+  color: #475569;
+  background: #f8fafc;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.account-table td {
+  color: #172033;
+  font-size: 13px;
+  word-break: break-word;
+}
+
+.issue-list {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 8px;
+  color: #b42318;
+  background: #ffe7e3;
+  font-family: "Cascadia Code", Consolas, monospace;
+  font-size: 13px;
+}
+
+.diagnostic-details {
+  color: #64748b;
+}
+
+.diagnostic-details summary {
+  width: fit-content;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 900;
 }
 
 .spin {

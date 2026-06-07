@@ -23,8 +23,7 @@ async function fetchExchangeRates(): Promise<ExchangeRates | undefined> {
   };
 }
 
-export const handler: Handler = async (event) => {
-  const selectedPlanId = event.queryStringParameters?.plan ?? undefined;
+export const handler: Handler = async () => {
   const errors: string[] = [];
 
   try {
@@ -48,7 +47,7 @@ export const handler: Handler = async (event) => {
     const products = extractRegionalPricing(html);
     if (!products.length) throw new Error('价格页中未找到 regionalData');
 
-    const payload = buildPricingPayload(products, exchangeResult.status === 'fulfilled' ? exchangeResult.value : undefined, selectedPlanId);
+    const payload = buildPricingPayload(products, exchangeResult.status === 'fulfilled' ? exchangeResult.value : undefined);
 
     return {
       statusCode: 200,

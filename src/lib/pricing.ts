@@ -161,6 +161,7 @@ export function rankRegionalPrices(plan: RegionalProduct, exchange?: ExchangeRat
 
 export function buildPricingPayload(products: RegionalProduct[], exchange?: ExchangeRates, selectedPlanId?: string) {
   const selectedPlan = products.find((plan) => plan.id === selectedPlanId) ?? products[0] ?? null;
+  const rankingsByPlan = Object.fromEntries(products.map((plan) => [plan.id, rankRegionalPrices(plan, exchange)]));
 
   return {
     sourceUrl: REGIONAL_PRICE_SOURCE,
@@ -177,6 +178,7 @@ export function buildPricingPayload(products: RegionalProduct[], exchange?: Exch
       count: plan.prices.length
     })),
     selectedPlanId: selectedPlan?.id ?? null,
-    regions: selectedPlan ? rankRegionalPrices(selectedPlan, exchange) : []
+    regions: selectedPlan ? rankingsByPlan[selectedPlan.id] : [],
+    rankingsByPlan
   };
 }
