@@ -12,19 +12,20 @@ import {
   Eraser,
   Eye,
   EyeOff,
+  Image,
   KeyRound,
   Link as LinkIcon,
   Loader2,
   MessageSquareText,
+  MousePointer2,
   RadioTower,
   RefreshCw,
   Send,
   Server,
   Upload,
   ShieldCheck,
-  ShoppingBag,
+  Share2,
   Sparkles,
-  Tv,
   WalletCards,
   Zap
 } from 'lucide-react';
@@ -49,7 +50,7 @@ type ChatResponse = {
   error?: unknown;
 };
 
-type ModuleId = 'api' | 'pricing' | 'shops' | 'bilibili' | 'status' | 'convert' | 'shen' | 'friends';
+type ModuleId = 'api' | 'pricing' | 'status' | 'convert' | 'shen' | 'friends';
 
 type PriceResponse = {
   ok: boolean;
@@ -60,26 +61,6 @@ type PriceResponse = {
   selectedPlanId: string | null;
   regions: Array<{ country: string; flag?: string; currency: string; localPrice: string; usd?: number; cny: number; displayPrice: string; exchangeSource: string }>;
   rankingsByPlan?: Record<string, Array<{ country: string; flag?: string; currency: string; localPrice: string; usd?: number; cny: number; displayPrice: string; exchangeSource: string }>>;
-  errors?: string[];
-};
-
-type ShopResponse = {
-  ok: boolean;
-  updatedAt: string;
-  mode: 'public-search' | 'needs-merchant-api';
-  note: string;
-  keywords: string[];
-  products: Array<{
-    platform: string;
-    sourceUrl: string;
-    name: string;
-    price: number;
-    stock: string;
-    category: string;
-    available: boolean;
-    shopName?: string;
-    sales?: number;
-  }>;
   errors?: string[];
 };
 
@@ -97,23 +78,11 @@ type StatusResponse = {
   errors?: string[];
 };
 
-type BilibiliResponse = {
-  ok: boolean;
-  updatedAt: string;
-  sourceUrl: string;
-  rule: string;
-  keywords?: string[];
-  items: Array<{ title: string; url: string; views: number; publishedAt: string; author?: string; summary: string }>;
-  errors?: string[];
-};
-
 const initialProvider = getProviderById('deepseek');
 
 const modules: Array<{ id: ModuleId; label: string; eyebrow: string; icon: typeof RadioTower }> = [
   { id: 'api', label: 'API 测试', eyebrow: 'Key Lab', icon: RadioTower },
   { id: 'pricing', label: '官方价格', eyebrow: 'Pricing', icon: WalletCards },
-  { id: 'shops', label: '低价渠道', eyebrow: 'Shops', icon: ShoppingBag },
-  { id: 'bilibili', label: 'B 站监测', eyebrow: 'Bilibili', icon: Tv },
   { id: 'status', label: '官方状态', eyebrow: 'Status', icon: ShieldCheck },
   { id: 'convert', label: 'JSON 转换', eyebrow: 'Convert', icon: Code2 },
   { id: 'shen', label: 'Shen 入口', eyebrow: 'Shen AI', icon: Sparkles },
@@ -128,10 +97,12 @@ const shenLinks = [
 ];
 
 const friendLinks = [
-  { title: 'ZZSHU', url: 'https://zzshu.cc/' },
-  { title: 'Kedaya Sub', url: 'https://sub.kedaya.xyz/' },
-  { title: 'FZL AI', url: 'https://api.fzl-ai.top/' },
-  { title: 'AI Pixel', url: 'https://ai-pixel.online/' }
+  { title: 'Pixel', url: 'https://ai-pixel.online/', note: 'AI Pixel', icon: Image, accent: '#2563eb' },
+  { title: '吱吱鼠', url: 'https://zzshu.cc/', note: 'ZZSHU', icon: MousePointer2, accent: '#0f766e' },
+  { title: '可达鸭', url: 'https://sub.kedaya.xyz/', note: '订阅入口', icon: LinkIcon, accent: '#ca8a04' },
+  { title: '可达鸭充值', url: 'https://shop.kedaya.xyz/', note: '充值入口', icon: WalletCards, accent: '#ea580c' },
+  { title: 'Share AI', url: 'https://shareai.codes/', note: 'Share AI', icon: Share2, accent: '#7c3aed' },
+  { title: 'FZL AI', url: 'https://api.fzl-ai.top/', note: 'FZL AI', icon: Zap, accent: '#dc2626' }
 ];
 
 function formatMs(ms?: number): string {
@@ -211,9 +182,26 @@ function RefreshButton({ loading, onClick }: { loading: boolean; onClick: () => 
   );
 }
 
-function ExternalLinkCard({ title, url, note }: { title: string; url: string; note?: string }) {
+function ExternalLinkCard({
+  title,
+  url,
+  note,
+  icon: Icon,
+  accent
+}: {
+  title: string;
+  url: string;
+  note?: string;
+  icon?: typeof RadioTower;
+  accent?: string;
+}) {
   return (
-    <a className="link-card" href={url} target="_blank" rel="noreferrer">
+    <a className="link-card" href={url} target="_blank" rel="noreferrer" style={accent ? ({ '--link-accent': accent } as CSSProperties) : undefined}>
+      {Icon ? (
+        <span className="link-icon" aria-hidden="true">
+          <Icon size={20} />
+        </span>
+      ) : null}
       <div>
         <strong>{title}</strong>
         {note ? <span>{note}</span> : null}
@@ -250,9 +238,7 @@ export function App() {
     .map(({ role, content }) => ({ role, content }));
   const conversion = useMemo(() => convertSessionInput(sessionInput, sessionFormat), [sessionInput, sessionFormat]);
   const pricing = useFunctionResource<PriceResponse>('/.netlify/functions/pricing', activeModule === 'pricing');
-  const shops = useFunctionResource<ShopResponse>('/.netlify/functions/shop-monitor', activeModule === 'shops');
   const officialStatus = useFunctionResource<StatusResponse>('/.netlify/functions/status', activeModule === 'status');
-  const bilibili = useFunctionResource<BilibiliResponse>('/.netlify/functions/bilibili-monitor', activeModule === 'bilibili');
   const pricingPlanExists = Boolean(pricing.data?.plans.some((plan) => plan.id === pricingPlan));
   const selectedPricingPlanId = pricingPlanExists ? pricingPlan : pricing.data?.selectedPlanId || pricing.data?.plans[0]?.id || '';
   const selectedRegions = selectedPricingPlanId ? pricing.data?.rankingsByPlan?.[selectedPricingPlanId] ?? pricing.data?.regions ?? [] : pricing.data?.regions ?? [];
@@ -609,77 +595,6 @@ export function App() {
             </div>
             {pricing.data?.errors?.length ? <pre className="error-block">{pricing.data.errors.join('\n')}</pre> : null}
             {pricing.error ? <p className="notice bad">{pricing.error}</p> : null}
-          </section>
-        ) : null}
-
-        {activeModule === 'shops' ? (
-          <section className="module-panel">
-            <PanelHeader title="低价 GPT 渠道监测" eyebrow="Shop monitor" description="优先搜索平台公开货源接口，不再抓取你自己的店铺作为结果" />
-            <div className="toolbar">
-              <RefreshButton loading={shops.loading} onClick={shops.refresh} />
-              <span>更新时间：{formatTime(shops.data?.updatedAt)}</span>
-              <span>{shops.data?.mode === 'public-search' ? '公开搜索' : '需要商家/API'}</span>
-            </div>
-            {shops.data?.note ? <p className={`notice ${shops.data.mode === 'needs-merchant-api' ? 'bad' : ''}`}>{shops.data.note}</p> : null}
-            <div className="product-list wide">
-              {shops.data?.products.map((product) => (
-                <a className="product-row product-row-link" key={`${product.platform}-${product.sourceUrl}-${product.name}`} href={product.sourceUrl} target="_blank" rel="noreferrer">
-                  <div>
-                    <strong>{product.name}</strong>
-                    <span>
-                      {product.platform}
-                      {product.shopName ? ` / ${product.shopName}` : ''} / {product.category}
-                    </span>
-                  </div>
-                  <b>¥{product.price}</b>
-                  <em className={product.available ? 'ok' : 'bad'}>{product.stock}</em>
-                </a>
-              ))}
-            </div>
-            {!shops.loading && shops.data && shops.data.products.length === 0 ? (
-              <div className="info-stack">
-                <p className="notice">当前没有拿到公开货源列表。要把这里做成“实时查看成品号、Plus 代充、Team 号”，需要提供其中一种：商家中心登录态 Cookie、官方/后台 API 文档，或可在 Netlify 环境变量里配置的后台接口凭据。</p>
-                <p className="notice">已确认的公开店铺接口只能查具体店铺商品，不适合当作平台级货源搜索；我也不会把你自己的店铺商品冒充成低价渠道结果。</p>
-              </div>
-            ) : null}
-            {shops.data?.errors?.length ? (
-              <details className="diagnostic-details">
-                <summary>诊断信息</summary>
-                <pre className="error-block">{shops.data.errors.join('\n')}</pre>
-              </details>
-            ) : null}
-            {shops.error ? <p className="notice bad">{shops.error}</p> : null}
-          </section>
-        ) : null}
-
-        {activeModule === 'bilibili' ? (
-          <section className="module-panel">
-            <PanelHeader title="B 站低价信息监测" eyebrow="Bilibili monitor" description="保留近 5 天播放量破万内容，并摘要公开方法" />
-            <div className="toolbar">
-              <RefreshButton loading={bilibili.loading} onClick={bilibili.refresh} />
-              <span>更新时间：{formatTime(bilibili.data?.updatedAt)}</span>
-            </div>
-            <p className="notice">{bilibili.data?.rule}</p>
-            <div className="story-list">
-              {bilibili.data?.items.map((item) => (
-                <a className="story-card" key={item.url} href={item.url} target="_blank" rel="noreferrer">
-                  <strong>{item.title}</strong>
-                  <span>
-                    {item.views.toLocaleString('zh-CN')} 播放 / {formatTime(item.publishedAt)}
-                    {item.author ? ` / ${item.author}` : ''}
-                  </span>
-                  <p>{item.summary}</p>
-                </a>
-              ))}
-            </div>
-            {!bilibili.loading && bilibili.data && bilibili.data.items.length === 0 ? <p className="notice">近 5 天暂未发现播放量破万的匹配视频。</p> : null}
-            {bilibili.data?.errors?.length && bilibili.data.items.length === 0 ? (
-              <details className="diagnostic-details" open>
-                <summary>诊断信息</summary>
-                <pre className="error-block">{bilibili.data.errors.join('\n')}</pre>
-              </details>
-            ) : null}
-            {bilibili.error ? <p className="notice bad">{bilibili.error}</p> : null}
           </section>
         ) : null}
 

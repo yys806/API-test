@@ -671,15 +671,32 @@ a {
 .link-card {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 14px;
+  gap: 12px;
   min-height: 92px;
   padding: 15px;
+}
+
+.link-card > svg {
+  margin-left: auto;
+  color: #94a3b8;
+}
+
+.link-icon {
+  display: grid;
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 8px;
+  border: 1px solid rgba(29, 39, 52, 0.1);
+  color: var(--link-accent, #2563eb);
+  background: #f8fafc;
 }
 
 .link-card div {
   display: grid;
   gap: 6px;
+  min-width: 0;
 }
 
 .link-card strong {
