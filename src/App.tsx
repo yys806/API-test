@@ -12,19 +12,16 @@ import {
   Eraser,
   Eye,
   EyeOff,
-  Image,
   KeyRound,
   Link as LinkIcon,
   Loader2,
   MessageSquareText,
-  MousePointer2,
   RadioTower,
   RefreshCw,
   Send,
   Server,
   Upload,
   ShieldCheck,
-  Share2,
   Sparkles,
   WalletCards,
   Zap
@@ -90,19 +87,19 @@ const modules: Array<{ id: ModuleId; label: string; eyebrow: string; icon: typeo
 ];
 
 const shenLinks = [
-  { title: 'Shen AI 中转站', url: 'https://skill-chat.cn', note: '主站入口' },
-  { title: 'Shen AI 主小铺', url: 'https://catfk.com/shop/I8IXPSSZ', note: '云猫寄售公开店铺入口' },
-  { title: 'Shen AI 副小铺', url: 'https://pay.ldxp.cn/shop/S5I572HE', note: '链动小铺' },
-  { title: 'AI 生图站', url: 'https://shen-image.cc.cd/', note: '图片生成服务' }
+  { title: 'Shen AI 中转站', url: 'https://skill-chat.cn', note: '主站入口', iconSrc: '/site-icons/shen-ai.png' },
+  { title: 'Shen AI 主小铺', url: 'https://catfk.com/shop/I8IXPSSZ', note: '云猫寄售公开店铺入口', iconSrc: '/site-icons/catfk.jpg' },
+  { title: 'Shen AI 副小铺', url: 'https://pay.ldxp.cn/shop/S5I572HE', note: '链动小铺', iconSrc: '/site-icons/ldxp.ico' },
+  { title: 'AI 生图站', url: 'https://shen-image.cc.cd/', note: '图片生成服务', iconSrc: '/site-icons/shen-image.svg' }
 ];
 
 const friendLinks = [
-  { title: 'Pixel', url: 'https://ai-pixel.online/', note: 'AI Pixel', icon: Image, accent: '#2563eb' },
-  { title: '吱吱鼠', url: 'https://zzshu.cc/', note: 'ZZSHU', icon: MousePointer2, accent: '#0f766e' },
-  { title: '可达鸭', url: 'https://sub.kedaya.xyz/', note: '订阅入口', icon: LinkIcon, accent: '#ca8a04' },
-  { title: '可达鸭充值', url: 'https://shop.kedaya.xyz/', note: '充值入口', icon: WalletCards, accent: '#ea580c' },
-  { title: 'Share AI', url: 'https://shareai.codes/', note: 'Share AI', icon: Share2, accent: '#7c3aed' },
-  { title: 'FZL AI', url: 'https://api.fzl-ai.top/', note: 'FZL AI', icon: Zap, accent: '#dc2626' }
+  { title: 'Pixel', url: 'https://ai-pixel.online/', note: 'AI Pixel', iconSrc: '/site-icons/pixel.jpg' },
+  { title: '吱吱鼠', url: 'https://zzshu.cc/', note: 'ZZSHU', iconSrc: '/site-icons/zzshu.png' },
+  { title: '可达鸭', url: 'https://sub.kedaya.xyz/', note: '订阅入口', iconSrc: '/site-icons/kedaya-sub.png' },
+  { title: '可达鸭充值', url: 'https://shop.kedaya.xyz/', note: '充值入口', iconSrc: '/site-icons/kedaya-shop.svg' },
+  { title: 'Share AI', url: 'https://shareai.codes/', note: 'Share AI', iconSrc: '/site-icons/shareai.png' },
+  { title: 'FZL AI', url: 'https://api.fzl-ai.top/', note: 'FZL AI', iconSrc: '/site-icons/fzl.png' }
 ];
 
 function formatMs(ms?: number): string {
@@ -186,20 +183,18 @@ function ExternalLinkCard({
   title,
   url,
   note,
-  icon: Icon,
-  accent
+  iconSrc
 }: {
   title: string;
   url: string;
   note?: string;
-  icon?: typeof RadioTower;
-  accent?: string;
+  iconSrc?: string;
 }) {
   return (
-    <a className="link-card" href={url} target="_blank" rel="noreferrer" style={accent ? ({ '--link-accent': accent } as CSSProperties) : undefined}>
-      {Icon ? (
+    <a className="link-card" href={url} target="_blank" rel="noreferrer">
+      {iconSrc ? (
         <span className="link-icon" aria-hidden="true">
-          <Icon size={20} />
+          <img src={iconSrc} alt="" loading="lazy" />
         </span>
       ) : null}
       <div>

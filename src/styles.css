@@ -689,8 +689,16 @@ a {
   place-items: center;
   border-radius: 8px;
   border: 1px solid rgba(29, 39, 52, 0.1);
-  color: var(--link-accent, #2563eb);
-  background: #f8fafc;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.link-icon img {
+  display: block;
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  border-radius: 6px;
 }
 
 .link-card div {
