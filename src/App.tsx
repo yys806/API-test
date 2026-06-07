@@ -54,16 +54,29 @@ type PriceResponse = {
   ok: boolean;
   updatedAt: string;
   sources: Array<{ provider: string; title: string; url: string }>;
-  regions: Array<{ region: string; currency: string; localMonthly: number; cnyMonthly: number; product: string; sourceUrl: string }>;
+  exchange?: { updatedAt: string; base: string };
+  plans: Array<{ id: string; productName: string; name: string; period: string; updatedAt: string; source: string; sourceLabel: string; count: number }>;
+  selectedPlanId: string | null;
+  regions: Array<{ country: string; flag?: string; currency: string; localPrice: string; usd?: number; cny: number; displayPrice: string; exchangeSource: string }>;
+  errors?: string[];
 };
 
 type ShopResponse = {
   ok: boolean;
   updatedAt: string;
-  shops: Array<{
+  mode: 'public-search' | 'needs-merchant-api';
+  note: string;
+  keywords: string[];
+  products: Array<{
     platform: string;
-    url: string;
-    products: Array<{ name: string; price: number; stock: string; category: string; available: boolean; sourceUrl: string }>;
+    sourceUrl: string;
+    name: string;
+    price: number;
+    stock: string;
+    category: string;
+    available: boolean;
+    shopName?: string;
+    sales?: number;
   }>;
   errors?: string[];
 };
@@ -87,7 +100,9 @@ type BilibiliResponse = {
   updatedAt: string;
   sourceUrl: string;
   rule: string;
-  items: Array<{ title: string; url: string; views: number; publishedAt: string | null; summary: string }>;
+  keywords?: string[];
+  items: Array<{ title: string; url: string; views: number; publishedAt: string; author?: string; summary: string }>;
+  errors?: string[];
 };
 
 const initialProvider = getProviderById('deepseek');
@@ -167,8 +182,8 @@ function useFunctionResource<T>(endpoint: string, enabled: boolean) {
   }
 
   useEffect(() => {
-    if (enabled && !data && !loading) void refresh();
-  }, [enabled]);
+    if (enabled) void refresh();
+  }, [enabled, endpoint]);
 
   return { data, error, loading, refresh };
 }
@@ -220,6 +235,7 @@ export function App() {
   const [expandedRawId, setExpandedRawId] = useState<string | null>(null);
   const [sessionInput, setSessionInput] = useState('');
   const [sessionFormat, setSessionFormat] = useState<OutputFormat>('sub2api');
+  const [pricingPlan, setPricingPlan] = useState('');
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
 
   const activeProvider = useMemo(() => getProviderById(providerId), [providerId]);
@@ -230,7 +246,10 @@ export function App() {
     .filter((message) => message.role === 'user' || message.role === 'assistant')
     .map(({ role, content }) => ({ role, content }));
   const conversion = useMemo(() => convertSessionInput(sessionInput, sessionFormat), [sessionInput, sessionFormat]);
-  const pricing = useFunctionResource<PriceResponse>('/.netlify/functions/pricing', activeModule === 'pricing');
+  const pricing = useFunctionResource<PriceResponse>(
+    `/.netlify/functions/pricing${pricingPlan ? `?plan=${encodeURIComponent(pricingPlan)}` : ''}`,
+    activeModule === 'pricing'
+  );
   const shops = useFunctionResource<ShopResponse>('/.netlify/functions/shop-monitor', activeModule === 'shops');
   const officialStatus = useFunctionResource<StatusResponse>('/.netlify/functions/status', activeModule === 'status');
   const bilibili = useFunctionResource<BilibiliResponse>('/.netlify/functions/bilibili-monitor', activeModule === 'bilibili');
@@ -526,61 +545,66 @@ export function App() {
 
         {activeModule === 'pricing' ? (
           <section className="module-panel">
-            <PanelHeader title="GPT / Claude 官方价格" eyebrow="Official pricing" description="地区订阅价格按人民币估算从低到高排序" />
+            <PanelHeader title="GPT / Claude 官方价格" eyebrow="Official pricing" description="直接解析地区订阅价格页，并用实时汇率重算人民币排名" />
             <div className="toolbar">
               <RefreshButton loading={pricing.loading} onClick={pricing.refresh} />
               <span>更新时间：{formatTime(pricing.data?.updatedAt)}</span>
+              <span>汇率：{formatTime(pricing.data?.exchange?.updatedAt)}</span>
+            </div>
+            <div className="format-tabs">
+              {pricing.data?.plans.map((plan) => (
+                <button className={(pricing.data?.selectedPlanId ?? pricingPlan) === plan.id ? 'active' : ''} type="button" key={plan.id} onClick={() => setPricingPlan(plan.id)}>
+                  {plan.name}
+                </button>
+              ))}
             </div>
             <div className="price-grid">
               {pricing.data?.regions.map((row, index) => (
-                <article className="rank-card" key={row.region}>
+                <article className="rank-card" key={`${row.country}-${row.localPrice}`}>
                   <span>#{index + 1}</span>
-                  <strong>{row.region}</strong>
+                  <strong>{row.flag ? `${row.flag} ` : ''}{row.country}</strong>
                   <p>
-                    {row.currency} {row.localMonthly} / 月
+                    {row.localPrice}
+                    {row.usd ? `，约 $${row.usd}` : ''}
                   </p>
-                  <b>约 ¥{row.cnyMonthly}</b>
+                  <b>{row.displayPrice}</b>
                 </article>
               ))}
             </div>
+            {!pricing.loading && pricing.data && pricing.data.regions.length === 0 ? <p className="notice bad">暂时没有解析到地区价格。</p> : null}
             <div className="link-grid">
               {pricing.data?.sources.map((source) => <ExternalLinkCard key={source.url} title={source.title} url={source.url} note={source.provider} />)}
             </div>
+            {pricing.data?.errors?.length ? <pre className="error-block">{pricing.data.errors.join('\n')}</pre> : null}
             {pricing.error ? <p className="notice bad">{pricing.error}</p> : null}
           </section>
         ) : null}
 
         {activeModule === 'shops' ? (
           <section className="module-panel">
-            <PanelHeader title="低价 GPT 渠道监测" eyebrow="Shop monitor" description="抓取公开店铺商品，按成品号、Plus、Team、Token 等关键词归类" />
+            <PanelHeader title="低价 GPT 渠道监测" eyebrow="Shop monitor" description="优先搜索平台公开货源接口，不再抓取你自己的店铺作为结果" />
             <div className="toolbar">
               <RefreshButton loading={shops.loading} onClick={shops.refresh} />
               <span>更新时间：{formatTime(shops.data?.updatedAt)}</span>
+              <span>{shops.data?.mode === 'public-search' ? '公开搜索' : '需要商家/API'}</span>
             </div>
-            <div className="shop-grid">
-              {shops.data?.shops.map((shop) => (
-                <article className="shop-card" key={shop.platform}>
-                  <div className="shop-card-head">
-                    <h3>{shop.platform}</h3>
-                    <a href={shop.url} target="_blank" rel="noreferrer">
-                      查看店铺 <ArrowUpRight size={14} />
-                    </a>
+            {shops.data?.note ? <p className={`notice ${shops.data.mode === 'needs-merchant-api' ? 'bad' : ''}`}>{shops.data.note}</p> : null}
+            <div className="product-list wide">
+              {shops.data?.products.map((product) => (
+                <a className="product-row product-row-link" key={`${product.platform}-${product.sourceUrl}-${product.name}`} href={product.sourceUrl} target="_blank" rel="noreferrer">
+                  <div>
+                    <strong>{product.name}</strong>
+                    <span>
+                      {product.platform}
+                      {product.shopName ? ` / ${product.shopName}` : ''} / {product.category}
+                    </span>
                   </div>
-                  <div className="product-list">
-                    {shop.products.map((product) => (
-                      <div className="product-row" key={`${shop.platform}-${product.name}`}>
-                        <div>
-                          <strong>{product.name}</strong>
-                          <span>{product.category}</span>
-                        </div>
-                        <b>¥{product.price}</b>
-                        <em className={product.available ? 'ok' : 'bad'}>{product.stock}</em>
-                      </div>
-                    ))}
-                  </div>
-                </article>
+                  <b>¥{product.price}</b>
+                  <em className={product.available ? 'ok' : 'bad'}>{product.stock}</em>
+                </a>
               ))}
             </div>
+            {!shops.loading && shops.data && shops.data.products.length === 0 ? <p className="notice">当前没有拿到公开货源列表。可提供商家中心登录态或官方 API 后，我可以把这里改成真实平台级搜索。</p> : null}
             {shops.data?.errors?.length ? <pre className="error-block">{shops.data.errors.join('\n')}</pre> : null}
             {shops.error ? <p className="notice bad">{shops.error}</p> : null}
           </section>
@@ -598,11 +622,16 @@ export function App() {
               {bilibili.data?.items.map((item) => (
                 <a className="story-card" key={item.url} href={item.url} target="_blank" rel="noreferrer">
                   <strong>{item.title}</strong>
-                  <span>{item.views ? `${item.views} 播放` : '等待稳定数据源'}</span>
+                  <span>
+                    {item.views.toLocaleString('zh-CN')} 播放 / {formatTime(item.publishedAt)}
+                    {item.author ? ` / ${item.author}` : ''}
+                  </span>
                   <p>{item.summary}</p>
                 </a>
               ))}
             </div>
+            {!bilibili.loading && bilibili.data && bilibili.data.items.length === 0 ? <p className="notice">近 5 天暂未发现播放量破万的匹配视频。</p> : null}
+            {bilibili.data?.errors?.length ? <pre className="error-block">{bilibili.data.errors.join('\n')}</pre> : null}
             {bilibili.error ? <p className="notice bad">{bilibili.error}</p> : null}
           </section>
         ) : null}

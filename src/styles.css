@@ -597,6 +597,10 @@ a {
   gap: 8px;
 }
 
+.product-list.wide {
+  gap: 10px;
+}
+
 .product-row {
   display: grid;
   grid-template-columns: 1fr auto auto;
@@ -605,6 +609,16 @@ a {
   padding: 10px;
   border-radius: 7px;
   background: #f8fafc;
+}
+
+.product-row-link {
+  border: 1px solid rgba(29, 39, 52, 0.08);
+  transition: border-color 0.18s ease, transform 0.18s ease;
+}
+
+.product-row-link:hover {
+  border-color: rgba(37, 99, 235, 0.28);
+  transform: translateY(-1px);
 }
 
 .product-row div {
