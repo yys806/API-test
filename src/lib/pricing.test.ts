@@ -106,6 +106,25 @@ describe('regional pricing', () => {
     expect(ranked[1].cny).toBe(144);
   });
 
+  it('prefers source CNY values when the current page omits USD prices', () => {
+    const [plan] = extractRegionalPricing(globalPricingHtml);
+    const [ranked] = rankRegionalPrices(plan, {
+      base: 'USD',
+      rates: {
+        CNY: 7.2,
+        PHP: 57
+      },
+      updatedAt: '2026-06-11T04:00:00.000Z'
+    });
+
+    expect(ranked).toMatchObject({
+      country: '菲律宾',
+      cny: 110.49,
+      displayPrice: '¥110.49',
+      exchangeSource: 'fallback-page'
+    });
+  });
+
   it('builds ranked regions for every plan so UI plan switching is local', () => {
     const products = extractRegionalPricing(sampleHtml);
     const payload = buildPricingPayload(products, undefined, 'claude-pro-month');

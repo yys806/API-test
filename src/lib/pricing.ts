@@ -161,6 +161,10 @@ function convertToCny(row: RegionalPriceInput, exchange?: ExchangeRates): Pick<R
     return { cny: roundMoney(row.usd * cnyRate), exchangeSource: 'live-usd' };
   }
 
+  if (typeof row.cny === 'number' && row.cny > 0) {
+    return { cny: roundMoney(row.cny), exchangeSource: 'fallback-page' };
+  }
+
   const localRate = row.currency ? exchange?.rates[row.currency] : undefined;
   const localAmount = parseLocalAmount(row.localPrice);
   if (exchange && cnyRate && localRate && localAmount !== null) {
