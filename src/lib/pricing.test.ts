@@ -34,6 +34,28 @@ const sampleHtml = `
   </script>
 `;
 
+const globalPricingHtml = `
+  <script>
+    window.LJAI_GLOBAL_PRICING = {
+      data: {
+        "chatgpt-plus-month": {
+          "product": "chatgpt",
+          "productName": "ChatGPT",
+          "name": "ChatGPT Plus (月度)",
+          "period": "月付",
+          "updatedAt": "2026-06-11 03:28:42",
+          "source": "https://apps.apple.com/us/app/chatgpt/id6448311069",
+          "sourceLabel": "Apple App Store 官方公开页",
+          "prices": [
+            { "country": "菲律宾", "flag": "🇵🇭", "localPrice": "₱ 999.00", "currency": "PHP", "cny": 110.49 }
+          ]
+        }
+      },
+      updatedAt: "2026-06-11 03:28"
+    };
+  </script>
+`;
+
 describe('regional pricing', () => {
   it('extracts product plans from the referenced regional price page', () => {
     const products = extractRegionalPricing(sampleHtml);
@@ -45,6 +67,23 @@ describe('regional pricing', () => {
       name: 'ChatGPT Plus (月度)'
     });
     expect(products[1].prices[0].country).toBe('尼日利亚');
+  });
+
+  it('extracts product plans from the current LJAI global pricing payload', () => {
+    const products = extractRegionalPricing(globalPricingHtml);
+
+    expect(products).toHaveLength(1);
+    expect(products[0]).toMatchObject({
+      id: 'chatgpt-plus-month',
+      productName: 'ChatGPT',
+      name: 'ChatGPT Plus (月度)',
+      sourceLabel: 'Apple App Store 官方公开页'
+    });
+    expect(products[0].prices[0]).toMatchObject({
+      country: '菲律宾',
+      currency: 'PHP',
+      cny: 110.49
+    });
   });
 
   it('recalculates CNY with live exchange rates and sorts low to high', () => {

@@ -57,6 +57,8 @@ export const OFFICIAL_PRICING_SOURCES = [
   }
 ];
 
+type RawRegionalProduct = Omit<RegionalProduct, 'id'>;
+
 function readBalancedObject(source: string, start: number): string {
   let depth = 0;
   let quote = '';
@@ -91,17 +93,7 @@ function readBalancedObject(source: string, start: number): string {
   throw new Error('regionalData object is incomplete');
 }
 
-export function extractRegionalPricing(html: string): RegionalProduct[] {
-  const marker = 'regionalData';
-  const markerIndex = html.indexOf(marker);
-  if (markerIndex < 0) return [];
-
-  const objectStart = html.indexOf('{', markerIndex);
-  if (objectStart < 0) return [];
-
-  const rawJson = readBalancedObject(html, objectStart);
-  const parsed = JSON.parse(rawJson) as Record<string, Omit<RegionalProduct, 'id'>>;
-
+function normalizeRegionalProducts(parsed: Record<string, RawRegionalProduct>): RegionalProduct[] {
   return Object.entries(parsed).map(([id, value]) => ({
     id,
     product: value.product,
@@ -113,6 +105,44 @@ export function extractRegionalPricing(html: string): RegionalProduct[] {
     sourceLabel: value.sourceLabel,
     prices: Array.isArray(value.prices) ? value.prices : []
   }));
+}
+
+function extractLegacyRegionalData(html: string): RegionalProduct[] {
+  const marker = 'regionalData';
+  const markerIndex = html.indexOf(marker);
+  if (markerIndex < 0) return [];
+
+  const objectStart = html.indexOf('{', markerIndex);
+  if (objectStart < 0) return [];
+
+  const rawJson = readBalancedObject(html, objectStart);
+  const parsed = JSON.parse(rawJson) as Record<string, RawRegionalProduct>;
+
+  return normalizeRegionalProducts(parsed);
+}
+
+function extractGlobalPricingData(html: string): RegionalProduct[] {
+  const marker = 'window.LJAI_GLOBAL_PRICING';
+  const markerIndex = html.indexOf(marker);
+  if (markerIndex < 0) return [];
+
+  const dataMatch = /(?:^|[,{]\s*)data\s*:/g;
+  dataMatch.lastIndex = markerIndex;
+  const match = dataMatch.exec(html);
+  if (!match) return [];
+
+  const objectStart = html.indexOf('{', dataMatch.lastIndex);
+  if (objectStart < 0) return [];
+
+  const rawJson = readBalancedObject(html, objectStart);
+  const parsed = JSON.parse(rawJson) as Record<string, RawRegionalProduct>;
+
+  return normalizeRegionalProducts(parsed);
+}
+
+export function extractRegionalPricing(html: string): RegionalProduct[] {
+  const globalPricing = extractGlobalPricingData(html);
+  return globalPricing.length ? globalPricing : extractLegacyRegionalData(html);
 }
 
 function parseLocalAmount(localPrice: string): number | null {
