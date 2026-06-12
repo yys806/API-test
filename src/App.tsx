@@ -99,6 +99,7 @@ const friendLinks = [
   { title: '可达鸭', url: 'https://sub.kedaya.xyz/', note: '订阅入口', iconSrc: '/site-icons/kedaya-sub.png' },
   { title: '可达鸭充值', url: 'https://shop.kedaya.xyz/', note: '充值入口', iconSrc: '/site-icons/kedaya-shop.svg' },
   { title: 'Share AI', url: 'https://shareai.codes/', note: 'Share AI', iconSrc: '/site-icons/shareai.png' },
+  { title: 'SSS Token', url: 'https://ssstoken.net/', note: 'SSS Token', iconSrc: '/site-icons/ssstoken.png' },
   { title: 'FZL AI', url: 'https://api.fzl-ai.top/', note: 'FZL AI', iconSrc: '/site-icons/fzl.png' }
 ];
 

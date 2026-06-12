@@ -9,7 +9,7 @@
 - 官方状态：查询 OpenAI 与 Claude 官方 Statuspage summary API。
 - JSON 转换：本地转换 ChatGPT session、AT-only JSON、CPA、sub2api 等格式，不上传 token。
 - Shen 入口：Shen AI 中转站、主小铺、副小铺、生图站跳转。
-- 友情中转：Pixel、吱吱鼠、可达鸭订阅/充值、Share AI、FZL AI 跳转。
+- 友情中转：Pixel、吱吱鼠、可达鸭订阅/充值、Share AI、SSS Token、FZL AI 跳转。
 
 ## 本地运行
 
