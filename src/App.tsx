@@ -82,15 +82,15 @@ const modules: Array<{ id: ModuleId; label: string; eyebrow: string; icon: typeo
   { id: 'pricing', label: '官方价格', eyebrow: 'Pricing', icon: WalletCards },
   { id: 'status', label: '官方状态', eyebrow: 'Status', icon: ShieldCheck },
   { id: 'convert', label: 'JSON 转换', eyebrow: 'Convert', icon: Code2 },
-  { id: 'shen', label: 'Shen 入口', eyebrow: 'Shen AI', icon: Sparkles },
+  { id: 'shen', label: 'Shen 入口', eyebrow: 'Shen Core', icon: Sparkles },
   { id: 'friends', label: '友情中转', eyebrow: 'Links', icon: LinkIcon }
 ];
 
 const shenLinks = [
-  { title: 'Shen AI 中转站', url: 'https://skill-chat.cn', note: '主站入口', iconSrc: '/site-icons/shen-ai.png' },
-  { title: 'Shen AI 主小铺', url: 'https://catfk.com/shop/I8IXPSSZ', note: '云猫寄售公开店铺入口', iconSrc: '/site-icons/catfk.jpg' },
-  { title: 'Shen AI 副小铺', url: 'https://pay.ldxp.cn/shop/S5I572HE', note: '链动小铺', iconSrc: '/site-icons/ldxp.ico' },
-  { title: 'AI 生图站', url: 'https://shen-image.cc.cd/', note: '图片生成服务', iconSrc: '/site-icons/shen-image.svg' }
+  { title: 'Shen Core', url: 'https://shencore.cc.cd/', note: '主站入口', iconSrc: '/site-icons/shencore.png' },
+  { title: 'Shen Core 主小铺', url: 'https://catfk.com/shop/shencore', note: '云猫寄售公开店铺入口', iconSrc: '/site-icons/catfk.jpg' },
+  { title: 'Shen Core 副小铺', url: 'https://pay.ldxp.cn/shop/shencore', note: '链动小铺', iconSrc: '/site-icons/ldxp.ico' },
+  { title: 'Shen Draw', url: 'https://shendraw.cc.cd/', note: '图片生成服务', iconSrc: '/site-icons/shendraw.svg' }
 ];
 
 const friendLinks = [
@@ -723,7 +723,7 @@ export function App() {
 
         {activeModule === 'shen' ? (
           <section className="module-panel">
-            <PanelHeader title="Shen AI 中转站" eyebrow="Jump links" description="主站、小铺和生图站快捷入口" />
+            <PanelHeader title="Shen Core" eyebrow="Jump links" description="主站、小铺和 Shen Draw 快捷入口" />
             <div className="link-grid large">
               {shenLinks.map((link) => <ExternalLinkCard key={link.url} {...link} />)}
             </div>
