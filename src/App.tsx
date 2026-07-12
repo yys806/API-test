@@ -88,6 +88,7 @@ const modules: Array<{ id: ModuleId; label: string; eyebrow: string; icon: typeo
 
 const shenLinks = [
   { title: 'Shen Core', url: 'https://shencore.cc.cd/', note: '主站入口', iconSrc: '/site-icons/shencore.png' },
+  { title: '易支付', url: 'https://member.z-pay.cn/member/', note: 'ZPAY 会员中心', iconSrc: '/site-icons/zpay.png' },
   { title: 'Shen Core 主小铺', url: 'https://catfk.com/shop/shencore', note: '云猫寄售公开店铺入口', iconSrc: '/site-icons/catfk.jpg' },
   { title: 'Shen Core 副小铺', url: 'https://pay.ldxp.cn/shop/shencore', note: '链动小铺', iconSrc: '/site-icons/ldxp.ico' },
   { title: 'Shen Draw', url: 'https://shendraw.cc.cd/', note: '图片生成服务', iconSrc: '/site-icons/shendraw.svg' }
@@ -97,8 +98,8 @@ const friendLinks = [
   { title: 'Pixel', url: 'https://ai-pixel.online/', note: 'AI Pixel', iconSrc: '/site-icons/pixel.jpg' },
   { title: '吱吱鼠', url: 'https://zzshu.cc/', note: 'ZZSHU', iconSrc: '/site-icons/zzshu.png' },
   { title: '可达鸭', url: 'https://sub.kedaya.xyz/', note: '订阅入口', iconSrc: '/site-icons/kedaya-sub.png' },
-  { title: '可达鸭充值', url: 'https://shop.kedaya.xyz/', note: '充值入口', iconSrc: '/site-icons/kedaya-shop.svg' },
   { title: 'Share AI', url: 'https://shareai.codes/', note: 'Share AI', iconSrc: '/site-icons/shareai.png' },
+  { title: 'APIKEY.FUN', url: 'https://apikey.fun/', note: 'AI 中转', iconSrc: '/site-icons/apikey-fun.png' },
   { title: 'SSS Token', url: 'https://ssstoken.net/', note: 'SSS Token', iconSrc: '/site-icons/ssstoken.png' },
   { title: 'FZL AI', url: 'https://api.fzl-ai.top/', note: 'FZL AI', iconSrc: '/site-icons/fzl.png' }
 ];

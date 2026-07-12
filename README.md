@@ -8,8 +8,8 @@
 - 官方价格：实时解析 `jingxialai.com/chatgptprice` 的 GPT / Claude 地区订阅价格，拉取实时汇率后按人民币从低到高排序。
 - 官方状态：查询 OpenAI 与 Claude 官方 Statuspage summary API。
 - JSON 转换：本地转换 ChatGPT session、AT-only JSON、CPA、sub2api 等格式，不上传 token。
-- Shen 入口：Shen Core、主小铺、副小铺、Shen Draw 跳转。
-- 友情中转：Pixel、吱吱鼠、可达鸭订阅/充值、Share AI、SSS Token、FZL AI 跳转。
+- Shen 入口：Shen Core、易支付、主小铺、副小铺、Shen Draw 跳转。
+- 友情中转：Pixel、吱吱鼠、可达鸭订阅、Share AI、APIKEY.FUN、SSS Token、FZL AI 跳转。
 
 ## 本地运行
 
