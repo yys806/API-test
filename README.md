@@ -37,4 +37,6 @@ Netlify 发布目录是 `dist`，构建命令是 `npm run build`。
 
 API key 只在本次浏览器请求中发往 Netlify Function，再由 Function 转发到用户填写的 Base URL。项目不会把 API key 写入代码、日志文件或环境变量。
 
+`chat` 代理函数会校验请求来源（Origin，缺失时退回 Referer）：只放行本站域名（Netlify 的 `URL` / `DEPLOY_PRIME_URL` / `DEPLOY_URL` 环境变量对应域名）以及 `localhost` / `127.0.0.1` 本地开发环境，其余来源一律返回 403，避免被第三方站点当作开放代理。
+
 JSON 转换在浏览器本地执行，不上传 token。私有 token、商家中心凭据或后台密钥不应写入前端代码。
