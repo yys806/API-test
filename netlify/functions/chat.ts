@@ -1,5 +1,6 @@
 import type { Handler } from '@netlify/functions';
 import { buildProviderRequest, extractAssistantText, type ChatMessage } from '../../src/lib/apiRequest';
+import { isTrustedRequestOrigin } from '../../src/lib/originGuard';
 import type { EndpointType } from '../../src/lib/providers';
 
 type ChatRequest = {
@@ -20,6 +21,15 @@ export const handler: Handler = async (event) => {
       statusCode: 405,
       headers: jsonHeaders,
       body: JSON.stringify({ error: 'Method not allowed.' })
+    };
+  }
+
+  // 该函数是一个代理入口:只允许本站页面(及本地开发)调用,防止被第三方站点当开放代理使用。
+  if (!isTrustedRequestOrigin(event.headers ?? {}, process.env)) {
+    return {
+      statusCode: 403,
+      headers: jsonHeaders,
+      body: JSON.stringify({ ok: false, status: 403, error: 'Forbidden: request origin is not allowed.' })
     };
   }
 
