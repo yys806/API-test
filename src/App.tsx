@@ -322,7 +322,12 @@ export function App() {
   }
 
   async function copyConversion() {
-    await navigator.clipboard.writeText(conversion.output);
+    if (!conversion.output) return;
+    try {
+      await navigator.clipboard.writeText(conversion.output);
+    } catch {
+      // 剪贴板不可用（非安全上下文或权限被拒）时静默降级，输出框仍可手动复制。
+    }
   }
 
   function downloadConversion() {
@@ -374,6 +379,7 @@ export function App() {
                 className={activeModule === module.id ? 'active' : ''}
                 key={module.id}
                 type="button"
+                aria-pressed={activeModule === module.id}
                 onClick={() => setActiveModule(module.id)}
               >
                 <Icon size={18} />
@@ -408,6 +414,7 @@ export function App() {
                     style={{ '--provider-color': provider.accent } as CSSProperties}
                     type="button"
                     title={provider.note}
+                    aria-pressed={provider.id === providerId}
                   >
                     <span>{provider.name}</span>
                     {provider.id === providerId ? <Check size={15} /> : null}
@@ -438,7 +445,13 @@ export function App() {
                     placeholder="sk-..."
                     type={showKey ? 'text' : 'password'}
                   />
-                  <button type="button" onClick={() => setShowKey((current) => !current)} title={showKey ? '隐藏密钥' : '显示密钥'}>
+                  <button
+                    type="button"
+                    onClick={() => setShowKey((current) => !current)}
+                    title={showKey ? '隐藏密钥' : '显示密钥'}
+                    aria-label={showKey ? '隐藏密钥' : '显示密钥'}
+                    aria-pressed={showKey}
+                  >
                     {showKey ? <EyeOff size={17} /> : <Eye size={17} />}
                   </button>
                 </div>
@@ -528,7 +541,12 @@ export function App() {
                       <p>{message.content}</p>
                       {message.error ? <pre className="error-block">{message.error}</pre> : null}
                       {message.raw !== undefined ? (
-                        <button className="raw-toggle" type="button" onClick={() => setExpandedRawId(expandedRawId === message.id ? null : message.id)}>
+                        <button
+                          className="raw-toggle"
+                          type="button"
+                          aria-expanded={expandedRawId === message.id}
+                          onClick={() => setExpandedRawId(expandedRawId === message.id ? null : message.id)}
+                        >
                           Raw response
                           <ChevronDown className={expandedRawId === message.id ? 'up' : ''} size={15} />
                         </button>
@@ -568,7 +586,13 @@ export function App() {
             </div>
             <div className="format-tabs">
               {pricing.data?.plans.map((plan) => (
-                <button className={selectedPricingPlanId === plan.id ? 'active' : ''} type="button" key={plan.id} onClick={() => setPricingPlan(plan.id)}>
+                <button
+                  className={selectedPricingPlanId === plan.id ? 'active' : ''}
+                  type="button"
+                  key={plan.id}
+                  aria-pressed={selectedPricingPlanId === plan.id}
+                  onClick={() => setPricingPlan(plan.id)}
+                >
                   {plan.name}
                 </button>
               ))}
@@ -632,7 +656,13 @@ export function App() {
             <PanelHeader title="ChatGPT Session JSON 转换" eyebrow="Local converter" description="本地解析，不上传 token，不写入存储" />
             <div className="format-tabs">
               {(['sub2api', 'cpa', 'cockpit', '9router', 'codex', 'axonhub', 'codex-manager'] as OutputFormat[]).map((format) => (
-                <button className={sessionFormat === format ? 'active' : ''} type="button" key={format} onClick={() => setSessionFormat(format)}>
+                <button
+                  className={sessionFormat === format ? 'active' : ''}
+                  type="button"
+                  key={format}
+                  aria-pressed={sessionFormat === format}
+                  onClick={() => setSessionFormat(format)}
+                >
                   {format}
                 </button>
               ))}

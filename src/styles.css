@@ -28,6 +28,14 @@ a {
   text-decoration: none;
 }
 
+button:focus-visible,
+a:focus-visible,
+select:focus-visible,
+summary:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
 .dashboard-shell {
   display: grid;
   grid-template-columns: 250px minmax(0, 1fr);
@@ -77,7 +85,7 @@ a {
 }
 
 .side-nav small {
-  color: #8a96a8;
+  color: #64748b;
   font-size: 11px;
   font-weight: 800;
 }
@@ -815,6 +823,16 @@ a {
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-row-link {
+    transition: none;
+  }
+
+  .product-row-link:hover {
+    transform: none;
   }
 }
 
