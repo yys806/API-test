@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { HandlerEvent } from '@netlify/functions';
-import { handler } from './chat';
+import { handler } from '../../netlify/functions/chat';
 
 function makeEvent(overrides: Partial<HandlerEvent>): HandlerEvent {
   return {
