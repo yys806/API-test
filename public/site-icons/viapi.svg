@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <!-- 背景 -->
+  <rect width="100" height="100" fill="#090D16" rx="16"/>
+  <!-- 左折线 (Request) -->
+  <path d="M 25,65 L 45,35 L 45,50" fill="none" stroke="#00E5A3" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- 右折线 (Response) -->
+  <path d="M 75,35 L 55,65 L 55,50" fill="none" stroke="#0052FF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- 中间无缝连接点 (Seamless Node) -->
+  <circle cx="50" cy="50" r="4.5" fill="#00F0FF"/>
+</svg>

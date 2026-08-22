@@ -96,9 +96,11 @@ const shenLinks = [
 
 const friendLinks = [
   { title: 'Pixel', url: 'https://ai-pixel.online/', note: 'AI Pixel', iconSrc: '/site-icons/pixel.jpg' },
+  { title: 'ViaPI', url: 'https://viapi.cc/', note: 'AI 中转', iconSrc: '/site-icons/viapi.svg' },
   { title: 'HappyCode', url: 'https://happycodeai.com/dashboard', note: 'HappyCode', iconSrc: '/site-icons/happycode.svg' },
-  { title: '吱吱鼠', url: 'https://zzshu.cc/', note: 'ZZSHU', iconSrc: '/site-icons/zzshu.png' },
   { title: '可达鸭', url: 'https://sub.kedaya.xyz/', note: '订阅入口', iconSrc: '/site-icons/kedaya-sub.png' },
+  { title: 'ZToken', url: 'https://ztoken.zlux.top/', note: 'AI API Gateway', iconSrc: '/site-icons/ztoken.png' },
+  { title: '吱吱鼠', url: 'https://zzshu.cc/', note: 'ZZSHU', iconSrc: '/site-icons/zzshu.png' },
   { title: 'Share AI', url: 'https://shareai.codes/', note: 'Share AI', iconSrc: '/site-icons/shareai.png' },
   { title: 'APIKEY.FUN', url: 'https://apikey.fun/', note: 'AI 中转', iconSrc: '/site-icons/apikey-fun.png' },
   { title: 'SSS Token', url: 'https://ssstoken.net/', note: 'SSS Token', iconSrc: '/site-icons/ssstoken.png' },
