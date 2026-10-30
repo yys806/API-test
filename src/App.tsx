@@ -97,7 +97,7 @@ const friendLinks = [
   { title: 'Pixel', url: 'https://ai-pixel.online/', note: 'AI Pixel', iconSrc: '/site-icons/pixel.jpg' },
   { title: 'Pixel API', url: 'https://api.ai-pixel.online/', note: 'Pixel 新站点', iconSrc: '/site-icons/pixel.jpg' },
   { title: 'ViaPI', url: 'https://viapi.cc/', note: 'AI 中转', iconSrc: '/site-icons/viapi.svg' },
-  { title: 'HappyCode', url: 'https://happycodeapi.com/', note: 'HappyCode', iconSrc: '/site-icons/happycode.svg' },
+  { title: 'HappyCode', url: 'https://happycodeapi.com/dashboard', note: 'HappyCode', iconSrc: '/site-icons/happycode.svg' },
   { title: 'FZL AI', url: 'https://api.fzl-ai.top/', note: 'FZL AI', iconSrc: '/site-icons/fzl.png' }
 ];
 
