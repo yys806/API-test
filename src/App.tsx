@@ -90,7 +90,8 @@ const shenLinks = [
   { title: 'Shen Core', url: 'https://shencore.cc.cd/', note: '主站入口', iconSrc: '/site-icons/shencore.png' },
   { title: '易支付', url: 'https://member.z-pay.cn/member/', note: 'ZPAY 会员中心', iconSrc: '/site-icons/zpay.png' },
   { title: '一梦店铺', url: 'https://yimengai.ccwu.cc/', note: '一梦AI地址发布页', iconSrc: '/site-icons/shencore.png' },
-  { title: 'Shen Draw', url: 'https://shendraw.cc.cd/', note: '图片生成服务', iconSrc: '/site-icons/shendraw.svg' }
+  { title: 'Shen Draw', url: 'https://shendraw.cc.cd/', note: '图片生成服务', iconSrc: '/site-icons/shendraw.svg' },
+  { title: 'AI 订阅比价', url: 'https://ai.pricememo.cn/products', note: '全部商品订阅报价', iconSrc: '/site-icons/pricememo.svg' }
 ];
 
 const friendLinks = [
